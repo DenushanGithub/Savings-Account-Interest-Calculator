@@ -12,3 +12,6 @@ To run the application:
 python app.py
 
 4. Once executed, open a web browser and load the page at [http://127.0.0.1:5000/](http://127.0.0.1:5000/).
+
+
+![image](https://github.com/DenushanGithub/Savings-Account-Interest-Calculator/assets/59986879/6e78af14-5a3d-46e8-b7d7-7772c6ee422f)
