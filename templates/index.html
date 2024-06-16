@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Savings Account Interest Calculator</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <!-- Include Chart.js library -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <div class="container">
+        <h1>Savings Account Interest Calculator</h1>
+        <form id="interestForm">
+            <label for="amount">Amount in Account: $</label>
+            <input type="number" id="amount" name="amount" required>
+            
+            <label for="interestRate">Current interest rate (% per year):</label>
+            <input type="number" step="0.01" id="interestRate" name="interestRate" required>
+            
+            <label for="term">Length of term:</label>
+            <select id="termUnit" name="termUnit">
+                <option value="months">Months</option>
+                <option value="years" selected>Years</option>
+            </select>
+            <input type="number" id="term" name="term" required>
+        </form>
+        <div id="result"></div>
+
+        <!-- Line graph for Interest Earned By Each Month -->
+        <h2>Interest Earned By Each Month</h2>
+        <canvas id="interestChart"></canvas>
+
+        <!-- Final Interest Earned -->
+        <div id="finalInterest">
+            <h2>Final Interest to be Earned:</h2>
+            <ul id="interestList"></ul>
+        </div>
+
+        <!-- Rates Table -->
+        <h2>Current Available Rates</h2>
+        <div id="ratesTable">
+            {{ table_html|safe }}
+        </div>
+        
+    </div>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const amountInput = document.getElementById('amount');
+            const interestRateInput = document.getElementById('interestRate');
+            const termInput = document.getElementById('term');
+            const termUnitSelect = document.getElementById('termUnit');
+
+            let selectedRates = [];
+
+            function calculateInterest() {
+                const amount = parseFloat(amountInput.value);
+                const term = parseInt(termInput.value);
+                const termUnit = termUnitSelect.value;
+                const userInterestRate = parseFloat(interestRateInput.value);
+
+                if (isNaN(amount) || isNaN(term) || isNaN(userInterestRate)) {
+                    document.getElementById('result').innerText = 'Please enter valid numbers for all fields.';
+                    return;
+                }
+
+                let termInMonths;
+                let labelPrefix;
+                if (termUnit === 'months') {
+                    termInMonths = term;
+                    labelPrefix = 'Month ';
+                } else {
+                    termInMonths = term * 12;
+                    labelPrefix = 'Month ';
+                }
+
+                const datasets = [];
+                const interestList = document.getElementById('interestList');
+                interestList.innerHTML = '';
+
+                // Calculate and plot the user's interest rate
+                const userMonthlyInterest = (amount * (userInterestRate / 100)) / 12;
+                const userData = [];
+                for (let i = 1; i <= termInMonths; i++) {
+                    userData.push(userMonthlyInterest * i);
+                }
+                datasets.push({
+                    label: `User Rate ${userInterestRate}%`,
+                    data: userData,
+                    borderColor: 'rgb(75, 192, 192)',
+                    tension: 0.1
+                });
+
+                const userInterestEarned = userMonthlyInterest * termInMonths;
+                const userInterestItem = document.createElement('li');
+                userInterestItem.innerText = `User Rate ${userInterestRate}%: $${userInterestEarned.toFixed(2)}`;
+                interestList.appendChild(userInterestItem);
+
+                // Calculate and plot the selected rates
+                selectedRates.forEach(rate => {
+                    const monthlyInterest = (amount * (rate / 100)) / 12;
+                    const data = [];
+                    for (let i = 1; i <= termInMonths; i++) {
+                        data.push(monthlyInterest * i);
+                    }
+                    datasets.push({
+                        label: `Rate ${rate}%`,
+                        data: data,
+                        borderColor: `rgb(${Math.floor(Math.random() * 256)}, ${Math.floor(Math.random() * 256)}, ${Math.floor(Math.random() * 256)})`,
+                        tension: 0.1
+                    });
+
+                    const interestEarned = monthlyInterest * termInMonths;
+                    const interestItem = document.createElement('li');
+                    interestItem.innerText = `Rate ${rate}%: $${interestEarned.toFixed(2)}`;
+                    interestList.appendChild(interestItem);
+                });
+
+                renderChart(datasets, termInMonths, labelPrefix);
+            }
+
+            function renderChart(datasets, termInMonths, labelPrefix) {
+                const ctx = document.getElementById('interestChart').getContext('2d');
+                if (window.chart) {
+                    window.chart.data.labels = Array.from({ length: termInMonths }, (_, i) => labelPrefix + (i + 1));
+                    window.chart.data.datasets = datasets;
+                    window.chart.update();
+                } else {
+                    window.chart = new Chart(ctx, {
+                        type: 'line',
+                        data: {
+                            labels: Array.from({ length: termInMonths }, (_, i) => labelPrefix + (i + 1)),
+                            datasets: datasets
+                        },
+                        options: {
+                            scales: {
+                                y: {
+                                    beginAtZero: true
+                                }
+                            }
+                        }
+                    });
+                }
+            }
+
+            document.querySelectorAll('.rate-checkbox').forEach(checkbox => {
+                checkbox.addEventListener('change', function() {
+                    const rate = parseFloat(this.getAttribute('data-rate'));
+                    if (this.checked) {
+                        selectedRates.push(rate);
+                    } else {
+                        const index = selectedRates.indexOf(rate);
+                        if (index !== -1) {
+                            selectedRates.splice(index, 1);
+                        }
+                    }
+                    calculateInterest();
+                });
+            });
+
+            amountInput.addEventListener('input', calculateInterest);
+            interestRateInput.addEventListener('input', calculateInterest);
+            termInput.addEventListener('input', calculateInterest);
+            termUnitSelect.addEventListener('change', calculateInterest);
+
+            calculateInterest();
+        });
+    </script>
+</body>
+</html>

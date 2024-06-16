@@ -1,0 +1,76 @@
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f0f0f0;
+    margin: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh; /* Changed height to min-height for flexibility */
+}
+
+
+.container {
+    background-color: white;
+    padding: 30px; /* Increased padding */
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    margin-top: 30px; /* Added margin to push it away from the top */
+}
+
+
+h1 {
+    margin-bottom: 20px;
+    text-align: center; /* Center align header text */
+}
+
+form {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 20px;
+
+}
+
+label {
+    margin-bottom: 8px;
+}
+
+input, select, button {
+    margin-bottom: 12px;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}
+
+button {
+    background-color: #007bff;
+    color: white;
+    border: none;
+    cursor: pointer;
+}
+
+button:hover {
+    background-color: #0056b3;
+}
+
+#result {
+    margin-top: 20px;
+    font-size: 1.2em;
+    color: #333;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    text-align: center;
+    margin-top: 20px;
+}
+
+th, td {
+    padding: 10px;
+    border: 1px solid #ccc;
+    text-align: center;
+}
+
+th {
+    background-color: #f4f4f4;
+}
